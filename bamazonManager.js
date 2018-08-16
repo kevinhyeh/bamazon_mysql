@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var cTable = require('console.table');
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -10,10 +11,10 @@ var connection = mysql.createConnection({
 });
 
 connection.connect(function(err) {
-    userCommand();
+    managerCommand();
 });
 
-function userCommand() {
+function managerCommand() {
     inquirer.prompt([{
             type: 'list',
             message: 'Choose Command:',
@@ -36,20 +37,16 @@ function userCommand() {
 
 function readProducts() {
     connection.query('SELECT * FROM products', function(err, res) {
-        console.log("ID" + ", " + "Price" + ", " + "Product" + ", " + "Quantity");
-        for (var i in res) {
-            console.log(res[i].item_id + ", $" + res[i].price + ".00, " + res[i].product_name + ", " + res[i].quantity);
-        }
+        console.table(res);
     });
-    setTimeout(userCommand, 0100);
+    setTimeout(managerCommand, 0100);
 }
 
 function lowInventory() {
     connection.query('SELECT * FROM products WHERE quantity < ?', [5], function(err, res) {
-        var lowInv = res[0]
-        console.log(lowInv.item_id + ", $" + lowInv.price + ".00, " + lowInv.product_name + ", " + lowInv.quantity);
+        console.table(res);
     });
-    setTimeout(userCommand, 0100);
+    setTimeout(managerCommand, 0100);
 }
 
 function addInventory() {
@@ -69,7 +66,7 @@ function addInventory() {
             console.log('Item Succesfully Updated');
             console.log('*******************');
         });
-        setTimeout(userCommand, 0300);
+        setTimeout(managerCommand, 0300);
     });
 }
 
@@ -93,19 +90,25 @@ function addProduct() {
             type: 'input',
             message: 'Quantity: ',
             name: 'quantity'
+        },
+        {
+            type: 'input',
+            message: 'Initial Sales: ',
+            name: 'sales'
         }
     ]).then(function(inquirerResponse) {
         var data = {
             product_name: inquirerResponse.productname,
             department_name: inquirerResponse.department,
             price: parseInt(inquirerResponse.price),
-            quantity: parseInt(inquirerResponse.quantity)
+            quantity: parseInt(inquirerResponse.quantity),
+            product_sales: parseInt(inquirerResponse.sales)
         }
         connection.query('INSERT INTO products SET ?', data, function(err, res) {
             if (err) throw err;
             console.log('Item Succesfully Added');
         });
-        setTimeout(userCommand, 0100);
+        setTimeout(managerCommand, 0100);
     });
 }
 

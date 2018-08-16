@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var cTable = require('console.table');
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -16,10 +17,7 @@ connection.connect(function(err) {
 
 function readProducts() {
     connection.query('SELECT * FROM products', function(err, res) {
-        console.log("ID" + ", " + "Price" + ", " + "Product" + ", " + "Quantity Left");
-        for (var i in res) {
-            console.log(res[i].item_id + ", " + "$" + res[i].price + ".00, " + res[i].product_name + ", " + res[i].quantity);
-        }
+        console.table(res);
     });
 }
 
@@ -50,16 +48,25 @@ function purchase() {
             var boughtPrice = res[0].price;
             var boughtQuantity = inquirerResponse.quantity;
             var boughtTotal = boughtPrice * boughtQuantity;
+            var productSales = [{
+                    product_sales: res[0].product_sales + boughtTotal
+                },
+                {
+                    item_id: inquirerResponse.purchase
+                }
+            ]
             if (custQuant < currentQuant) {
                 console.log("Purchased");
-                connection.query('UPDATE products SET ? WHERE ?', data, function(err, res) {
-                });
+                connection.query('UPDATE products SET ? WHERE ?', data)
                 console.log("Below is a copy of your reciept");
                 console.log("Item purchased: " + boughtProduct);
                 console.log("Price: $" + boughtPrice + ".00")
                 console.log("Quantity: " + boughtQuantity);
                 console.log("Your Total: $" + boughtTotal + ".00")
-                purchase();
+                connection.query('UPDATE products SET ? WHERE ?', productSales);
+                readProducts();
+                setTimeout(purchase, 0500);
+
             } else {
                 console.log("Sorry, can't fulfill order");
                 purchase();
