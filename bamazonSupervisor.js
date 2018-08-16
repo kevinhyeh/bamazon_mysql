@@ -53,15 +53,13 @@ function createDepartment() {
             name: 'overheadcost'
         }
     ]).then(function(inquirerResponse) {
-        var newDepart = 
-        {
+        var newDepart = {
             department_id: inquirerResponse.departmentid,
             department_name: inquirerResponse.departmentname,
             over_head_costs: inquirerResponse.overheadcost
         }
-        connection.query('INSERT INTO departments SET ?', newDepart, function(err, res) {
-            console.table(res);
-        });
-
+        connection.query('INSERT INTO departments SET ?', newDepart);
+        console.table("Department Succesfully Added!");
+        supervisorCommand();
     });
 }
