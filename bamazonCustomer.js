@@ -33,84 +33,37 @@ function purchase() {
             type: 'input',
             message: 'How many would you like to buy?',
             name: 'quantity'
-        },
-        {
-            type: "confirm",
-            message: "Are you sure:",
-            name: "confirm",
-            default: true
         }
     ]).then(function(inquirerResponse) {
-        connection.query('SELECT quantity FROM products WHERE item_id = ?', [inquirerResponse.purchase], function(err, res) {
+        connection.query('SELECT * FROM products WHERE item_id = ?', [inquirerResponse.purchase], function(err, res) {
             var currentQuant = res[0].quantity;
             var custQuant = parseInt(inquirerResponse.quantity);
             var newQuant = currentQuant - custQuant;
             var data = [{
-                quantity: newQuant
-            },
-            {
-                item_id: inquirerResponse.purchase
-            }];
+                    quantity: newQuant
+                },
+                {
+                    item_id: inquirerResponse.purchase
+                }
+            ];
+            var boughtProduct = res[0].product_name;
+            var boughtPrice = res[0].price;
+            var boughtQuantity = inquirerResponse.quantity;
+            var boughtTotal = boughtPrice * boughtQuantity;
             if (custQuant < currentQuant) {
                 console.log("Purchased");
                 connection.query('UPDATE products SET ? WHERE ?', data, function(err, res) {
-                    console.log(res);
                 });
+                console.log("Below is a copy of your reciept");
+                console.log("Item purchased: " + boughtProduct);
+                console.log("Price: $" + boughtPrice + ".00")
+                console.log("Quantity: " + boughtQuantity);
+                console.log("Your Total: $" + boughtTotal + ".00")
+                purchase();
             } else {
                 console.log("Sorry, can't fulfill order");
                 purchase();
-
             }
         });
     });
 }
-
-// function purchase() {
-//     connection.query('SELECT * FROM products', function(err, res) {
-//         inquirer.prompt([{
-//                 type: 'input',
-//                 message: 'Which item would you like to purchase? (type item ID)',
-//                 name: 'purchase'
-//             },
-//             {
-//                 type: 'input',
-//                 message: 'How many would you like to buy?',
-//                 name: 'quantity'
-//             },
-//             {
-//                 type: "confirm",
-//                 message: "Are you sure:",
-//                 name: "confirm",
-//                 default: true
-//             }
-//         ]).then(function(inquirerResponse) {
-//             var id = parseInt(inquirerResponse.purchase);
-//             var purchasedItem = res[(id - 1)];
-//             var newQuantity = res[id].quantity - inquirerResponse.quantity;
-//             // if (inquirerResponse.quantity < res[id].quantity) {
-//             //     
-//             //     var data = [{
-//             //             quantity: newQuantity
-//             //         },
-//             //         {
-//             //             item_id: inquirerResponse.purchase
-//             //         }];
-//             //     connection.query('UPDATE products SET ? WHERE ?', data, function(err, res) {
-//             //         if (err) throw ('error');
-//             //     });
-//             //     console.log("Below is a copy of your reciept");
-//             //     console.log("Item purchased: " + purchasedItem.product_name);
-//             //     console.log("Price: " + purchasedItem.price)
-//             //     console.log("Quantity: " + inquirerResponse.quantity);
-//             //     console.log("Your Total: " + "$" + (inquirerResponse.quantity * purchasedItem.price) + ".00")
-//             //     purchase();
-//             // } else {
-//             //     console.log('Sorry, not enough in stock');
-//             //     purchase();
-//             // }
-//             console.log(inquirerResponse.quantity);
-//             console.log(newQuantity);
-//         });
-//     });
-
-// }

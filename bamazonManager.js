@@ -19,12 +19,6 @@ function userCommand() {
             message: 'Choose Command:',
             choices: ['View Products for Sale', 'View Low Inventory', 'Add to Inventory', 'Add New Product'],
             name: 'commandList'
-        },
-        {
-            type: "confirm",
-            message: "Are you sure:",
-            name: "confirm",
-            default: true
         }
     ]).then(function(inquirerResponse) {
         var command = inquirerResponse.commandList;
@@ -68,12 +62,6 @@ function addInventory() {
             type: 'input',
             message: 'How many would you like to add?',
             name: 'quantityAdded'
-        },
-        {
-            type: "confirm",
-            message: "Are you sure:",
-            name: "confirm",
-            default: true
         }
     ]).then(function(inquirerResponse) {
         connection.query('UPDATE products SET quantity = quantity + ? WHERE item_id = ?', [inquirerResponse.quantityAdded, inquirerResponse.chosenAddItem], function(err, res) {
